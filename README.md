@@ -49,6 +49,8 @@ pytest -q
 ruff check src tests
 ```
 
+GitHub Actions runs lint and tests on each push and pull request to `main`.
+
 Ask the same question as two different fixture users:
 
 ```bash
