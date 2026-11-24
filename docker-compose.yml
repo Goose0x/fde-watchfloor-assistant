@@ -1,0 +1,60 @@
+# Laptop / isolated demo. The default profile talks to nothing outside this compose
+# project: stub LLM, in-process durable approvals, optional Postgres. Pull images
+# once on a connected machine, then run fully offline.
+#
+#   docker compose up --build
+#   docker compose --profile postgres up --build
+#
+# Tests do not use Compose; they run against the in-memory store and stub provider.
+
+services:
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      WATCHFLOOR_LLM_PROVIDER: stub
+      WATCHFLOOR_WORKFLOW_BACKEND: inprocess
+      WATCHFLOOR_DATA_DIR: /app/data
+    volumes:
+      - watchfloor-data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 8
+
+  db:
+    image: pgvector/pgvector:pg16
+    profiles: ["postgres"]
+    environment:
+      POSTGRES_USER: watchfloor
+      POSTGRES_PASSWORD: watchfloor
+      POSTGRES_DB: watchfloor
+    volumes:
+      - watchfloor-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U watchfloor -d watchfloor"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api-postgres:
+    build: .
+    profiles: ["postgres"]
+    ports:
+      - "8080:8080"
+    environment:
+      WATCHFLOOR_LLM_PROVIDER: stub
+      WATCHFLOOR_WORKFLOW_BACKEND: inprocess
+      WATCHFLOOR_DATA_DIR: /app/data
+      WATCHFLOOR_DATABASE_URL: postgresql://watchfloor:watchfloor@db:5432/watchfloor
+    volumes:
+      - watchfloor-data:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  watchfloor-data:
+  watchfloor-pg:

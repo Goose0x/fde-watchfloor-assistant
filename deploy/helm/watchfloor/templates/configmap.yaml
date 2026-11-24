@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "watchfloor.fullname" . }}
+  labels:
+    app.kubernetes.io/name: watchfloor
+data:
+  WATCHFLOOR_LLM_PROVIDER: {{ .Values.llmProvider | quote }}
+  WATCHFLOOR_WORKFLOW_BACKEND: {{ .Values.workflowBackend | quote }}
+  {{- if .Values.databaseUrl }}
+  WATCHFLOOR_DATABASE_URL: {{ .Values.databaseUrl | quote }}
+  {{- end }}

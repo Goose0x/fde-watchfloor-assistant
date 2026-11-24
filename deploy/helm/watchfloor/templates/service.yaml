@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "watchfloor.fullname" . }}
+  labels:
+    app.kubernetes.io/name: watchfloor
+spec:
+  selector:
+    app.kubernetes.io/name: watchfloor
+  ports:
+    - name: http
+      port: {{ .Values.service.port }}
+      targetPort: http

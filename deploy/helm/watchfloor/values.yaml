@@ -1,0 +1,33 @@
+image:
+  repository: watchfloor
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+service:
+  port: 8080
+
+# Default is the offline stub. Set to anthropic or vertex only when keys and
+# Private Google Access / a VPC-SC perimeter are in place.
+llmProvider: stub
+workflowBackend: inprocess
+databaseUrl: ""
+
+# NetworkPolicy: default-deny egress except DNS, in-cluster Postgres, and the
+# restricted Google APIs range used with Private Google Access / VPC-SC.
+networkPolicy:
+  enabled: true
+  allowRestrictedGoogleAPIs: true
+  postgres:
+    enabled: false
+    cidr: 10.40.0.0/20
+    port: 5432
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

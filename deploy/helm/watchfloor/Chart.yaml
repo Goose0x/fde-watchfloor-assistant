@@ -1,0 +1,6 @@
+apiVersion: v2
+name: watchfloor
+description: Watchfloor assistant — need-to-know retrieval, PII proxy, and approval gates.
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
